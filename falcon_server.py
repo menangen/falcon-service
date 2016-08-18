@@ -3,13 +3,25 @@
 import falcon
 import json
 
+
 class FormResource:
 
-    def on_post(self, request, response):
+    @staticmethod
+    def on_post(request, response):
 
+        if request.content_length in (None, 0):
+            # Nothing to do
+            return
+
+        body = request.stream.read()
+        if not body:
+            raise falcon.HTTPBadRequest('Empty request body',
+                                        'A valid JSON document is required.')
+
+        request_data = json.loads(body.decode('utf-8'))
 
         try:
-            username = request._params['username']
+            username = request_data["username"]
             # print "time_zone params is %s" % type(timezone)
         except:
             username = ""
@@ -27,7 +39,7 @@ class FormResource:
 app = falcon.API()
 
 # Resources are represented by long-lived class instances
-time = FormResource()
+ajaxForm = FormResource()
 
 # things will handle all requests to the '/time' URL path
-app.add_route('/travel', time)
+app.add_route('/travel', ajaxForm)

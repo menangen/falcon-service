@@ -1,1 +1,1 @@
-gunicorn -b 192.168.1.5:8000 falcon_server:app
+gunicorn -b 0.0.0.0:8080 falcon_server:app
