@@ -2,24 +2,16 @@
 # -*- coding: utf-8 -*-
 import falcon
 import json
-import sys
-
-from logbook import Logger, StreamHandler, FileHandler
-
+import logs
 
 class FormResource:
 
     @staticmethod
     def on_post(request, response):
-        # Enable logging to File
-        log_to_file = FileHandler('logs/service.log')
-        log_to_file.push_application()
 
-        # Enable logbook logger Stream to output
-        #StreamHandler(sys.stdout).push_application()
-
-        log_request = Logger('FormResource:request.stream.read')
-        log_response = Logger('FormResource:response.body')
+        # Enable logging
+        log_request = logs.log_request
+        log_response = logs.log_response
 
         if request.content_length in (None, 0):
             # Nothing to do
@@ -28,7 +20,9 @@ class FormResource:
         body = request.stream.read()
         # Error in body (sending ajax error / bad connection)
         if not body:
-            log_request.warning("Empty request body!")
+            username = "Empty request body!"
+            log_request.warning(username)
+
             raise falcon.HTTPBadRequest('Empty request body',
                                         'A valid JSON document is required.')
         else:
@@ -40,13 +34,10 @@ class FormResource:
                 log_request.info(request_data)
 
                 username = request_data.get("username", "")
-                # print "time_zone params is %s" % type(timezone)
-                log_request.info("Username is")
-                log_request.info()
 
             except:
                 log_request.warning("Not valid JSON!")
-                username = ""
+                username = "error in json"
 
             """Handles GET requests"""
             response.status = falcon.HTTP_200  # This is the default status
