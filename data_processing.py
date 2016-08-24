@@ -1,18 +1,30 @@
 #! python
 # -*- coding: utf-8 -*-
 import logs
-
+from peewee import PostgresqlDatabase
 
 class TravelData:
 
     def __init__(self, username, email, sex, city, country, message, is_professional):
-        self.username = str(username).strip()
-        self.email = str(email).strip()
-        self.sex = str(sex).strip()
-        self.city = str(city).strip()
-        self.country = str(country).strip()
-        self.message = str(message).strip()
-        self.is_professional = str(is_professional).strip()
+        try:
+            self.username = str(username).strip()
+            self.email = str(email).strip()
+            self.sex = str(sex).strip()
+            self.city = str(city).strip()
+            self.country = str(country).strip()
+            self.message = str(message).strip()
+            self.is_professional = str(is_professional).strip()
+        except:
+            logs.data_validator.critical("Error in stripping incoming data")
+
+        try:
+            # PostgreSQL Config
+            self.database = PostgresqlDatabase('travel',
+                                               user='catadmin',
+                                               password='1234',
+                                               host='127.0.0.1')
+        except:
+            logs.data_transaction.critical("Peewee instance error. Check installation")
 
     def is_valid(self):
 
@@ -66,6 +78,19 @@ class TravelData:
 
     def save(self):
         if self.is_valid():
-            logs.data_transaction.debug("Saving data to PosgreSQL")
+            # logs.data_transaction.debug("Saving data to PosgreSQL")
+
+            try:
+                self.database.connect()
+                logs.data_transaction.debug("Open connection to database")
+            except:
+                logs.data_transaction.critical("Database conection ERROR: Is created the project 'travel' database?")
+
+            try:
+                self.database.close()
+                logs.data_transaction.debug("Close connection")
+            except:
+                logs.data_transaction.critical("Can't close connection to database")
+
         else:
             logs.data_transaction.warning("Can't save invalid form data into database")
