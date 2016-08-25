@@ -1,7 +1,8 @@
 #! python
 # -*- coding: utf-8 -*-
 import logs
-from peewee import PostgresqlDatabase
+from models import database, User
+
 
 class TravelData:
 
@@ -14,17 +15,8 @@ class TravelData:
             self.country = str(country).strip()
             self.message = str(message).strip()
             self.is_professional = str(is_professional).strip()
-        except:
-            logs.data_validator.critical("Error in stripping incoming data")
-
-        try:
-            # PostgreSQL Config
-            self.database = PostgresqlDatabase('travel',
-                                               user='catadmin',
-                                               password='1234',
-                                               host='127.0.0.1')
-        except:
-            logs.data_transaction.critical("Peewee instance error. Check installation")
+        except Exception as e:
+            logs.data_validator.critical(e)
 
     def is_valid(self):
 
@@ -78,19 +70,25 @@ class TravelData:
 
     def save(self):
         if self.is_valid():
-            # logs.data_transaction.debug("Saving data to PosgreSQL")
-
+            # Connect to DB
             try:
-                self.database.connect()
+                database.connect()
                 logs.data_transaction.debug("Open connection to database")
-            except:
-                logs.data_transaction.critical("Database conection ERROR: Is created the project 'travel' database?")
 
-            try:
-                self.database.close()
-                logs.data_transaction.debug("Close connection")
-            except:
-                logs.data_transaction.critical("Can't close connection to database")
+                logs.data_transaction.debug("Saving data to PostgreSQL")
+
+                try:
+                    user = User(username=self.username)
+                    user.save()
+
+                except Exception as e:
+                    logs.data_transaction.critical(e)
+                    logs.data_transaction.critical("Can't save user in DB")
+
+            except Exception as e:
+                logs.data_transaction.critical(e)
+                logs.data_transaction.critical(
+                    "Database conection ERROR!")  # Is created the project 'travel' database?"
 
         else:
             logs.data_transaction.warning("Can't save invalid form data into database")

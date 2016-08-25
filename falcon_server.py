@@ -55,9 +55,11 @@ class FormResource:
                 # Saving data to Database
                 travel_data.save()
 
-            except:
-                log_request.warning("Not valid JSON!")
-                error_message = "Error in json"
+            except Exception as e:
+                log_request.warning(e)
+                # log_request.warning("Not valid JSON!")
+                # error_message = "Error in json"
+                error_message = e.__repr__()
 
             """Handles GET requests"""
             response.status = falcon.HTTP_200  # This is the default status
