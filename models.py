@@ -1,7 +1,7 @@
 #! python
 # -*- coding: utf-8 -*-
 import logs
-from peewee import Model, CharField, PostgresqlDatabase
+from peewee import PostgresqlDatabase, Model, CharField, TextField, BooleanField
 
 # Init DB
 try:
@@ -15,7 +15,13 @@ except:
 
 
 class User(Model):
-    username = CharField(unique=True)
+    username = CharField(max_length=64, index=True)
+    email = CharField(max_length=64, index=True)
+    sex = BooleanField(null=False)
+    city = CharField(max_length=32)
+    country = CharField(max_length=32)
+    message = TextField()
+    is_professional = BooleanField(null=False)
 
     class Meta:
         database = database

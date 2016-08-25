@@ -8,13 +8,13 @@ class TravelData:
 
     def __init__(self, username, email, sex, city, country, message, is_professional):
         try:
-            self.username = str(username).strip()
-            self.email = str(email).strip()
-            self.sex = str(sex).strip()
-            self.city = str(city).strip()
-            self.country = str(country).strip()
-            self.message = str(message).strip()
-            self.is_professional = str(is_professional).strip()
+            self.username = unicode(username).strip()
+            self.email = unicode(email).strip()
+            self.sex = unicode(sex).strip().lower()
+            self.city = unicode(city).strip()
+            self.country = unicode(country).strip()
+            self.message = unicode(message).strip()
+            self.is_professional = unicode(is_professional).strip().lower()
         except Exception as e:
             logs.data_validator.critical(e)
 
@@ -30,37 +30,37 @@ class TravelData:
         else:
             logs.data_validator.warning("Invalid (empty) message textInput")
 
-        if len(self.username) > 0:
+        if 0 < len(self.username) < 65:
             counter += 1
             logs.data_validator.debug("Valid username textInput")
         else:
             logs.data_validator.warning("Empty username textInput")
 
-        if len(self.email) > 0 and self.email.find("@") > 0:
+        if 0 < len(self.email) < 65 and self.email.find("@") > 0:
             counter += 1
             logs.data_validator.debug("Valid email textInput")
         else:
             logs.data_validator.warning("Invalid email textInput")
 
-        if self.sex.lower() in ("male", "female"):
+        if self.sex in (u"male", u"female"):
             counter += 1
             logs.data_validator.debug("Valid male/female radio select")
         else:
             logs.data_validator.warning("Invalid male/female radio select")
 
-        if len(self.city) > 0:
+        if 0 < len(self.city) < 33:
             counter += 1
             logs.data_validator.debug("Valid city textInput")
         else:
             logs.data_validator.warning("Empty city textInput")
 
-        if len(self.country) > 0:
+        if 0 < len(self.country) < 33:
             counter += 1
             logs.data_validator.debug("Valid country textInput")
         else:
             logs.data_validator.warning("Empty country textInput")
 
-        if self.is_professional.lower() in ("yes", "no"):
+        if self.is_professional in (u"yes", u"no"):
             counter += 1
             logs.data_validator.debug("Valid isProfessionalTarget radio select")
         else:
@@ -78,7 +78,17 @@ class TravelData:
                 logs.data_transaction.debug("Saving data to PostgreSQL")
 
                 try:
-                    user = User(username=self.username)
+                    # Populate data to Model
+                    user = User(
+                        username=self.username,
+                        email=self.email,
+                        sex=1 if self.sex == u"male" else 0,
+                        city=self.city,
+                        country=self.country,
+                        message=self.message,
+                        is_professional=1 if self.is_professional == u"yes" else 0
+                    )
+                    # Saving data in ORM
                     user.save()
 
                 except Exception as e:
