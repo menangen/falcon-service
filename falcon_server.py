@@ -7,6 +7,7 @@ import logs
 from wsgiref import simple_server
 from data_processing import TravelData
 
+IP_ADDRESS_DEVELOPMENT_ONLY = '192.168.1.5'  # '127.0.0.1'
 
 class FormResource:
 
@@ -27,7 +28,7 @@ class FormResource:
         # Error in body (sending ajax error / bad connection)
         if not body:
             error_message = "Empty request body!"
-            log_request.warning("{0} from IP {1}", error_message, request.access_route)
+            log_request.warning("{0} from IP route {1}", error_message, request.access_route)
 
             raise falcon.HTTPBadRequest('Empty request body',
                                         'A valid JSON document is required.')
@@ -39,6 +40,9 @@ class FormResource:
                 request_data = json.loads(body.decode('utf-8'))
                 log_request.debug("request_data: {0}", request_data)
 
+                # Request data
+                ip_address = request.access_route[0]
+                # Form data:
                 username = request_data.get("username", "")
                 email = request_data.get("email", "")
                 sex = request_data.get("sex", "")
@@ -48,7 +52,15 @@ class FormResource:
                 is_professional = request_data.get("isProfessionalTarget", "")
 
                 # Send data to processing engine (check non empty fields)
-                travel_data = TravelData(username, email, sex, city, country, message, is_professional)
+                travel_data = TravelData(
+                    ip=ip_address,
+                    username=username,
+                    email=email,
+                    sex=sex,
+                    city=city,
+                    country=country,
+                    message=message,
+                    is_professional=is_professional)
 
                 log_request.debug("Valid Form data? : {0}", travel_data.is_valid())
 
@@ -86,6 +98,6 @@ ajaxForm = FormResource()
 app.add_route('/travel', ajaxForm)
 
 if __name__ == '__main__':
-    print('Dev server started on 127.0.0.1:8080')
-    wsgi_server = simple_server.make_server('127.0.0.1', 8080, app)
+    print('Dev server started on {0}:8080'.format(IP_ADDRESS_DEVELOPMENT_ONLY))
+    wsgi_server = simple_server.make_server(IP_ADDRESS_DEVELOPMENT_ONLY, 8080, app)
     wsgi_server.serve_forever()

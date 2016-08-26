@@ -14,7 +14,8 @@ except:
     logs.data_transaction.critical("ORM Peewee instance error. Check installation")
 
 
-class User(Model):
+class Traveler(Model):
+    ip = CharField(max_length=45, index=True)
     username = CharField(max_length=64, index=True)
     email = CharField(max_length=64, index=True)
     sex = BooleanField(null=False)

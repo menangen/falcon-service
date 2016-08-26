@@ -11,7 +11,6 @@ except Exception as e:
 
 try:
     database.create_table(User)
+    print("Ok, tables is created!")
 except Exception as e:
     logs.data_transaction.critical(e)
-
-print("Ok, tables is created!")
