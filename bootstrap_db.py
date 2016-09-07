@@ -1,7 +1,7 @@
 #! python
 # -*- coding: utf-8 -*-
 import logs
-from models import database, User
+from models import database, Traveler
 
 try:
     database.connect()
@@ -10,7 +10,7 @@ except Exception as e:
 
 
 try:
-    database.create_table(User)
+    database.create_table(Traveler)
     print("Ok, tables is created!")
 except Exception as e:
     logs.data_transaction.critical(e)

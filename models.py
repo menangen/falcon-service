@@ -7,8 +7,8 @@ from peewee import PostgresqlDatabase, Model, CharField, TextField, BooleanField
 try:
     # PostgreSQL Config
     database = PostgresqlDatabase('travel',
-                                       user='catadmin',
-                                       password='1234',
+                                       user='traveler',
+                                       password='password',
                                        host='127.0.0.1')
 except:
     logs.data_transaction.critical("ORM Peewee instance error. Check installation")
