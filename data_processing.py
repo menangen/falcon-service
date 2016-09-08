@@ -6,16 +6,14 @@ from models import database, Traveler
 
 class TravelData:
 
-    def __init__(self, ip="0.0.0.0", username="Noname", email=None, sex=None, city=None, country=None, message="", is_professional=None):
+    def __init__(self, ip="0.0.0.0", username="Noname", email=None, sex=None, country=None, message=""):
         try:
             self.ip = ip
             self.username = unicode(username).strip()
             self.email = unicode(email).strip()
             self.sex = unicode(sex).strip().lower()
-            self.city = unicode(city).strip()
             self.country = unicode(country).strip()
             self.message = unicode(message).strip()
-            self.is_professional = unicode(is_professional).strip().lower()
         except Exception as e:
             logs.data_validator.critical(e)
 
@@ -23,7 +21,7 @@ class TravelData:
 
         # Should True flag and max counter for indicate completed data in ajax form <input>'s
         counter = 0
-        form_fileds_number = 7
+        form_fileds_number = 5
 
         # IP
         if 0 < len(self.ip) < 46:
@@ -57,26 +55,14 @@ class TravelData:
             logs.data_validator.debug("Valid male/female radio select")
         else:
             logs.data_validator.warning("Invalid male/female radio select")
-        # City
-        if 0 < len(self.city) < 33:
-            counter += 1
-            logs.data_validator.debug("Valid city textInput")
-        else:
-            logs.data_validator.warning("Empty city textInput")
         # Country
         if 0 < len(self.country) < 33:
             counter += 1
             logs.data_validator.debug("Valid country textInput")
         else:
             logs.data_validator.warning("Empty country textInput")
-        # Target
-        if self.is_professional in (u"yes", u"no"):
-            counter += 1
-            logs.data_validator.debug("Valid isProfessionalTarget radio select")
-        else:
-            logs.data_validator.warning("Invalid isProfessionalTarget radio select")
 
-        return counter == 1 + form_fileds_number  # ip + form fileds
+        return counter == 1 + form_fileds_number  # ip + form fields
 
     def save(self):
         if self.is_valid():
@@ -92,10 +78,8 @@ class TravelData:
                         username=self.username,
                         email=self.email,
                         sex=1 if self.sex == u"male" else 0,
-                        city=self.city,
                         country=self.country,
-                        message=self.message,
-                        is_professional=1 if self.is_professional == u"yes" else 0
+                        message=self.message
                     )
                     # Saving data in ORM
                     user.save()
@@ -108,6 +92,13 @@ class TravelData:
             except Exception as e:
                 logs.data_transaction.critical(e)
                 logs.data_transaction.critical("Database conection ERROR!")  # Do you create 'travel' database?"
+
+                # Now create scheme
+                try:
+                    database.create_table(Traveler)
+                    logs.data_transaction.debug("Ok, tables is created!")
+                except Exception as e:
+                    logs.data_transaction.critical(e)
 
         else:
             logs.data_transaction.warning("Can't save invalid form data into database")

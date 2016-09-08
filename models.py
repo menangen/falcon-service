@@ -9,7 +9,7 @@ try:
     database = PostgresqlDatabase('travel',
                                        user='traveler',
                                        password='password',
-                                       host='127.0.0.1')
+                                       host='172.17.0.3')  # Postgresql port in Docker container
 except:
     logs.data_transaction.critical("ORM Peewee instance error. Check installation")
 
@@ -19,10 +19,8 @@ class Traveler(Model):
     username = CharField(max_length=64, index=True)
     email = CharField(max_length=64, index=True)
     sex = BooleanField(null=False)
-    city = CharField(max_length=32)
     country = CharField(max_length=32)
     message = TextField()
-    is_professional = BooleanField(null=False)
 
     class Meta:
         database = database

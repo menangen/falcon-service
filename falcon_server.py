@@ -9,6 +9,7 @@ from data_processing import TravelData
 
 IP_ADDRESS_DEVELOPMENT_ONLY = '192.168.1.5'  # '127.0.0.1'
 
+
 class FormResource:
 
     @staticmethod
@@ -46,10 +47,8 @@ class FormResource:
                 username = request_data.get("username", "")
                 email = request_data.get("email", "")
                 sex = request_data.get("sex", "")
-                city = request_data.get("city", "")
                 country = request_data.get("country", "")
                 message = request_data.get("message", "")
-                is_professional = request_data.get("isProfessionalTarget", "")
 
                 # Send data to processing engine (check non empty fields)
                 travel_data = TravelData(
@@ -57,10 +56,8 @@ class FormResource:
                     username=username,
                     email=email,
                     sex=sex,
-                    city=city,
                     country=country,
-                    message=message,
-                    is_professional=is_professional)
+                    message=message)
 
                 log_request.debug("Valid Form data? : {0}", travel_data.is_valid())
 
@@ -101,3 +98,21 @@ if __name__ == '__main__':
     print('Dev server started on {0}:8080'.format(IP_ADDRESS_DEVELOPMENT_ONLY))
     wsgi_server = simple_server.make_server(IP_ADDRESS_DEVELOPMENT_ONLY, 8080, app)
     wsgi_server.serve_forever()
+
+else:
+    from models import database, Traveler
+    from peewee import DatabaseError
+
+    try:
+        database.connect()
+        logs.data_transaction.debug("Open connection to database")
+
+        try:
+            database.create_table(Traveler)
+            logs.data_transaction.debug("Ok, tables is created!")
+        except DatabaseError as e:
+            logs.data_transaction.warning(e)
+
+        database.close()
+    except Exception as e:
+        logs.data_transaction.critical(e)

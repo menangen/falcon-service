@@ -1,0 +1,1 @@
+docker run -it --rm -e POSTGRES_PASSWORD=password -e POSTGRES_USER=traveler -e POSTGRES_DB=travel --link some-postgres:postgres postgres psql -h postgres -U traveler -d travel

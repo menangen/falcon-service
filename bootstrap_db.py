@@ -14,3 +14,4 @@ try:
     print("Ok, tables is created!")
 except Exception as e:
     logs.data_transaction.critical(e)
+    print(e)
